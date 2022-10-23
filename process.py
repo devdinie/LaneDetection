@@ -1,3 +1,4 @@
+from concurrent.futures import thread
 import numpy as np
 import cv2
 
@@ -35,12 +36,21 @@ def process(image):
         roi_vertices = [(0, height), (width/2, height/2), (width, height)]
         
         gray_image  = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-        canny_image = cv2.Canny(gray_image, 150, 200)
+        #canny_image = cv2.Canny(gray_image, 150, 200)
         
-        cropped_image = get_roi(canny_image, np.array([roi_vertices], np.int32),)
+        thresh, binary_image = cv2.threshold(gray_image,100,200,cv2.THRESH_BINARY)
+        
+        contours, _ = cv2.findContours(binary_image,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+        cv2.drawContours(binary_image,contours,-1,(0,255,0),3)
+        """
+        contours, heirarchy = cv2.findContours(150, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        #Sbinary_image = cv2.drawContours(gray_image, contours, -1, (0,255,0), 20)
+        #cropped_image = get_roi(binary_image, np.array([roi_vertices], np.int32),)
         
         #lines = cv2.HoughLinesP(cropped_image, rho=2, theta=np.pi/180, threshold=50,
         #                        lines=np.array([]), minLineLength=40, maxLineGap=200)
         
         #image_lines = draw_lines(image, lines)
-        return cropped_image
+        """
+        return binary_image, contours
+        
